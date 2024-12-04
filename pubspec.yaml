@@ -10,10 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  core_data: ^0.1.0
   nfc_manager: ^2.0.0
   flutter_local_notifications: ^9.0.0
-  bluetooth: ^0.7.0
+  flutter_blue: ^0.8.0
   wifi: ^0.1.0
   sqflite: ^2.0.0+4
   path: ^1.8.0
