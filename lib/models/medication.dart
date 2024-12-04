@@ -1,4 +1,4 @@
-import 'package:core_data/core_data.dart';
+
 import 'package:sqflite/sqflite.dart';
 
 class Medication {

@@ -11,14 +11,14 @@ dependencies:
   flutter:
     sdk: flutter
   nfc_manager: ^3.5.0
-  flutter_local_notifications: ^9.0.0
+  flutter_local_notifications: ^9.9.1
   flutter_blue: ^0.8.0
-  wifi_iot: ^0.3.0
-  sqflite: ^2.0.0+4
-  path: ^1.8.0
+  wifi_iot: ^0.3.19+1
+  sqflite: ^2.4.1
+  path: ^1.9.0
 
 dev_dependencies:
-  lints: ^4.0.0
+  lints: ^5.0.0
   test: ^1.24.0
   flutter_test:
     sdk: flutter
