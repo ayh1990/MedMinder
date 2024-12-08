@@ -6,10 +6,10 @@ import 'package:medminder/models/medication.dart';
 
 class ScanIntakeScreen extends StatefulWidget {
   @override
-  _ScanIntakeScreenState createState() => _ScanIntakeScreenState();
+  ScanIntakeScreenState createState() => ScanIntakeScreenState();
 }
 
-class _ScanIntakeScreenState extends State<ScanIntakeScreen> {
+class ScanIntakeScreenState extends State<ScanIntakeScreen> {
   late Future<List<Medication>> _medications;
 
   @override

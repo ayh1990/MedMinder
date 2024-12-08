@@ -1,4 +1,4 @@
-library medminder;
+library;
 
 /// Support for doing something awesome.
 ///

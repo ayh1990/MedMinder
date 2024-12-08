@@ -1,3 +1,4 @@
+import 'package:medminder/main.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'models/intake_event.dart';
@@ -22,8 +23,9 @@ class DBHelper {
     String path = join(await getDatabasesPath(), 'medminder.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2, // Increment the version number
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -31,7 +33,11 @@ class DBHelper {
     await db.execute('''
       CREATE TABLE medications (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
+        name TEXT NOT NULL,
+        dosage TEXT NOT NULL,
+        frequency INTEGER NOT NULL,
+        startDateTime TEXT,
+        endDate TEXT
       )
     ''');
     await db.execute('''
@@ -63,6 +69,13 @@ class DBHelper {
     ''');
   }
 
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE medications ADD COLUMN dosage TEXT');
+    }
+    // Add more migrations as needed
+  }
+
   // Medication CRUD operations
   Future<int> insertMedication(Medication medication) async {
     Database db = await database;
@@ -79,6 +92,7 @@ class DBHelper {
 
   Future<int> deleteMedication(int id) async {
     Database db = await database;
+    await flutterLocalNotificationsPlugin.cancel(id);
     return await db.delete('medications', where: 'id = ?', whereArgs: [id]);
   }
 

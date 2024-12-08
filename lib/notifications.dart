@@ -1,21 +1,22 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:medminder/main.dart';
+import 'package:timezone/timezone.dart' as tz;
 
-Future<void> scheduleNotification(int id, String title, String body, DateTime scheduledTime) async {
-  const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
-    'medminder_channel',
-    'MedMinder Notifications',
-    channelDescription: 'Channel for MedMinder notifications',
-    importance: Importance.max,
-    priority: Priority.high,
-    showWhen: false,
-  );
-  const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.schedule(
-    id,
-    title,
-    body,
-    scheduledTime,
-    platformChannelSpecifics,
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+void scheduleNotification() async {
+  await flutterLocalNotificationsPlugin.zonedSchedule(
+    0,
+    'Scheduled Notification',
+    'This is the body of the notification',
+    tz.TZDateTime.now(tz.local).add(Duration(seconds: 5)),
+    const NotificationDetails(
+      android: AndroidNotificationDetails(
+        'your channel id', // channelId
+        'your channel name', // channelName
+        channelDescription: 'your channel description',
+      ),
+    ),
+    androidAllowWhileIdle: true,
+    uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
   );
 }

@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:medminder/db_helper.dart';
 import 'package:medminder/models/intake_event.dart';
 
-class IntakeHistoryScreen extends StatelessWidget {
+class IntakeHistoryScreen extends StatefulWidget {
+  @override
+  IntakeHistoryScreenState createState() => IntakeHistoryScreenState();
+}
+
+class IntakeHistoryScreenState extends State<IntakeHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,12 +30,11 @@ class IntakeHistoryScreen extends StatelessWidget {
                 final intakeEvent = snapshot.data![index];
                 return ListTile(
                   title: Text('Intake Time: ${intakeEvent.intakeTime}'),
-                  subtitle: Text('Medication ID: ${intakeEvent.medicationId}'),
                   trailing: IconButton(
                     icon: Icon(Icons.delete),
                     onPressed: () async {
                       await DBHelper().deleteIntakeEvent(intakeEvent.id!);
-                      (context as Element).reassemble();
+                      (context as StatefulElement).state.setState(() {});
                     },
                   ),
                 );

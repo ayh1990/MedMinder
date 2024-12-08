@@ -9,16 +9,28 @@ import 'package:medminder/screens/bluetooth.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  late Future<List<Medication>> _medications;
+class HomeScreenState extends State<HomeScreen> {
+  late Future<List<Medication>> medications;
 
   @override
   void initState() {
     super.initState();
-    _medications = DBHelper().getMedications();
+    medications = DBHelper().getMedications();
+  }
+
+  String _formatFrequency(int frequency) {
+    if (frequency < 60) {
+      return '$frequency minutes';
+    } else if (frequency < 1440) {
+      return '${frequency ~/ 60} hours';
+    } else if (frequency < 10080) {
+      return '${frequency ~/ 1440} days';
+    } else {
+      return '${frequency ~/ 10080} weeks';
+    }
   }
 
   @override
@@ -33,17 +45,13 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => AddMedicationScreen()),
-              ).then((value) {
-                setState(() {
-                  _medications = DBHelper().getMedications();
-                });
-              });
+              );
             },
           ),
         ],
       ),
       body: FutureBuilder<List<Medication>>(
-        future: _medications,
+        future: medications,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -52,31 +60,64 @@ class _HomeScreenState extends State<HomeScreen> {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No medications added.'));
           } else {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final medication = snapshot.data![index];
-                return ListTile(
-                  title: Text(medication.name),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MedicationDetailScreen(medication: medication),
-                      ),
-                    );
-                  },
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () async {
-                      await DBHelper().deleteMedication(medication.id!);
-                      setState(() {
-                        _medications = DBHelper().getMedications();
-                      });
-                    },
+            final currentMedications = snapshot.data!.where((med) => med.endDate == null || med.endDate!.isAfter(DateTime.now())).toList();
+            final pastMedications = snapshot.data!.where((med) => med.endDate != null && med.endDate!.isBefore(DateTime.now())).toList();
+
+            return ListView(
+              children: [
+                if (currentMedications.isNotEmpty) ...[
+                  ListTile(
+                    title: Text('Current Medications', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
-                );
-              },
+                  ...currentMedications.map((medication) => ListTile(
+                    title: Text(medication.name),
+                    subtitle: Text('Dosage: ${medication.dosage}, Frequency: ${_formatFrequency(medication.frequency)}, Start: ${medication.startDateTime?.toLocal().toString() ?? 'N/A'}'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MedicationDetailScreen(medication: medication),
+                        ),
+                      );
+                    },
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () async {
+                        await DBHelper().deleteMedication(medication.id!);
+                        setState(() {
+                          medications = DBHelper().getMedications();
+                        });
+                      },
+                    ),
+                  )),
+                ],
+                if (pastMedications.isNotEmpty) ...[
+                  ListTile(
+                    title: Text('Past Medications', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  ...pastMedications.map((medication) => ListTile(
+                    title: Text(medication.name),
+                    subtitle: Text('Dosage: ${medication.dosage}, Frequency: ${_formatFrequency(medication.frequency)}, Start: ${medication.startDateTime?.toLocal().toString() ?? 'N/A'}, End: ${medication.endDate?.toLocal().toString() ?? 'N/A'}'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MedicationDetailScreen(medication: medication),
+                        ),
+                      );
+                    },
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () async {
+                        await DBHelper().deleteMedication(medication.id!);
+                        setState(() {
+                          medications = DBHelper().getMedications();
+                        });
+                      },
+                    ),
+                  )),
+                ],
+              ],
             );
           }
         },
@@ -92,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (context) => ScanIntakeScreen()),
               );
             },
-            child: Icon(Icons.qr_code_scanner),
+            child: Icon(Icons.nfc),
             tooltip: 'Scan for Intake',
           ),
           SizedBox(height: 10),
@@ -117,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
             child: Icon(Icons.bluetooth),
-            tooltip: 'Bluetooth Devices',
+            tooltip: 'Bluetooth',
           ),
         ],
       ),

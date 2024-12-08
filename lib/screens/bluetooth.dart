@@ -3,10 +3,10 @@ import 'package:flutter_blue/flutter_blue.dart';
 
 class BluetoothScreen extends StatefulWidget {
   @override
-  _BluetoothScreenState createState() => _BluetoothScreenState();
+  BluetoothScreenState createState() => BluetoothScreenState();
 }
 
-class _BluetoothScreenState extends State<BluetoothScreen> {
+class BluetoothScreenState extends State<BluetoothScreen> {
   FlutterBlue flutterBlue = FlutterBlue.instance;
   List<BluetoothDevice> devicesList = [];
 
